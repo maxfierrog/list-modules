@@ -16,7 +16,8 @@ pub fn generate_module_list(__input: TokenStream) -> TokenStream {
     let __internal_base_path = Path::new(&__input);
 
     // Get the project directory
-    let __internal_project_dir = env::var("CARGO_MANIFEST_DIR").expect("Failed to get project directory");
+    let __internal_project_dir =
+        env::var("CARGO_MANIFEST_DIR").expect("Failed to get project directory");
     let __internal_project_path = Path::new(&__internal_project_dir);
 
     // Construct the full base path by appending the input path to the project directory
@@ -28,7 +29,10 @@ pub fn generate_module_list(__input: TokenStream) -> TokenStream {
         .filter_map(|entry| {
             if let Ok(entry) = entry {
                 if let Some(entry_name) = entry.file_name().to_str() {
-                    if entry_name.ends_with(".rs") && entry_name != "mod.rs" && entry_name != "archetypes.rs" {
+                    if entry_name.ends_with(".rs")
+                        && entry_name != "mod.rs"
+                        && entry_name != "archetypes.rs"
+                    {
                         return Some(entry_name[..entry_name.len() - 3].to_owned());
                     } else if entry_name != "mod.rs" && entry_name != "archetypes.rs" {
                         return Some(entry_name.to_owned());
@@ -46,7 +50,10 @@ pub fn generate_module_list(__input: TokenStream) -> TokenStream {
         ]
     };
 
-    let __internal_array_type_definition = format_ident!(r#"[&str; {}]"#, __internal_module_names.len());
+    let __internal_array_type_definition: proc_macro2::TokenStream =
+        format!("[&str; {}]", __internal_module_names.len())
+            .parse()
+            .unwrap();
 
     // Generate the static list of string slices with the custom list name
     let __internal_macro_output = quote! {
