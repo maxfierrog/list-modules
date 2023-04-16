@@ -10,7 +10,8 @@ which are children of the crate of the module folder it was called from.
 Note that it will only have the desired function if it is called from the
 `mod.rs` file of a module structured in a folder (not a file).
 
-For example, calling this macro from `mod.rs` in the following file tree:
+For example, calling this macro with `list_modules::here!()` inside `mod.rs` 
+in the following file tree:
 
 ```
 parent/
