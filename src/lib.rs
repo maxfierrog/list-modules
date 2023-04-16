@@ -5,12 +5,12 @@
 //! "archetypes.rs" (a module folder named "archetypes" is fine). I will try
 //! to fix this ASAP.**
 //!
-//! This crate creates a constant string slice list of all the module names
-//! which are children of the crate of the module folder it was called from.
-//! Note that it will only have the desired function if it is called from the
-//! `mod.rs` file of a module structured in a folder (not a file).
+//! This macro creates a constant string slice list of all the module names
+//! which are children of an indicated crate module folder. Paths are specified
+//! relative to the cargo manifest directory.
 //!
-//! For example, calling this macro from `mod.rs` in the following file tree:
+//! For example, calling this macro from `mod.rs` in the following file tree
+//! with `list_modules::here!("parent/");`...
 //!
 //! ```none
 //! parent/
@@ -37,7 +37,7 @@
 //!     "child_2",
 //!     "child_3",
 //!     ...
-//!     "child_n",
+//!     "child_N",
 //! ];
 //! ```
 //!
@@ -57,12 +57,12 @@ use std::fs;
 /// "archetypes.rs" (a module folder named "archetypes" is fine). I will try
 /// to fix this ASAP.**
 ///
-/// This crate creates a constant string slice list of all the module names
-/// which are children of the crate of the module folder it was called from.
-/// Note that it will only have the desired function if it is called from the
-/// `mod.rs` file of a module structured in a folder (not a file).
+/// This macro creates a constant string slice list of all the module names
+/// which are children of an indicated crate module folder. Paths are specified
+/// relative to the cargo manifest directory.
 ///
-/// For example, calling this macro from `mod.rs` in the following file tree:
+/// For example, calling this macro from `mod.rs` in the following file tree
+/// with `list_modules::here!("parent/");`...
 ///
 /// ```none
 /// parent/
@@ -89,15 +89,18 @@ use std::fs;
 ///     "child_2",
 ///     "child_3",
 ///     ...
-///     "child_n",
+///     "child_N",
 /// ];
 /// ```
 ///
 /// Note that this is the only guaranteed behavior.
 #[proc_macro]
-pub fn here(_: TokenStream) -> TokenStream {
+pub fn here(__input: TokenStream) -> TokenStream {
     // Get the absolute path of the directory where the macro was called from
-    let mut __macro_call_path = env::current_dir().expect("Failed to get current directory");
+    let __manifest_dir = env::var("CARGO_MANIFEST_DIR").expect("Failed to get Cargo manifest directory");
+    let mut __macro_call_path = fs::canonicalize(__manifest_dir)
+        .expect("Failed to canonicalize Cargo manifest directory");
+    __macro_call_path.push(__input.to_string().trim_matches('"'));
 
     // Collect the module names by iterating over the entries in the full base directory
     let __internal_module_names: Vec<String> = fs::read_dir(__macro_call_path)
@@ -126,6 +129,7 @@ pub fn here(_: TokenStream) -> TokenStream {
         ]
     };
 
+    // Get number of iterms in array to later insert them
     let __number_of_modules_in_array = __internal_module_names.len();
 
     // Generate the static list of string slices with the custom list name
