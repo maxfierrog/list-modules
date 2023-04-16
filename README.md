@@ -1,10 +1,5 @@
 # List-Modules Procedural Macro
 
-**WARNING: This crate is domain-specific. The only thing that makes it so
-is that you cannot name one of the directory items you are trying to list
-"archetypes.rs" (a module folder named "archetypes" is fine). I will try
-to fix this ASAP.**
-
 This macro creates a constant string slice list of all the module names
 which are children of an indicated crate module folder. Paths are specified
 relative to the cargo manifest directory.

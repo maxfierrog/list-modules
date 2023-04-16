@@ -1,10 +1,5 @@
 //! # List-Modules Procedural Macro
 //!
-//! **WARNING: This crate is domain-specific. The only thing that makes it so
-//! is that you cannot name one of the directory items you are trying to list
-//! "archetypes.rs" (a module folder named "archetypes" is fine). I will try
-//! to fix this ASAP.**
-//!
 //! This macro creates a constant string slice list of all the module names
 //! which are children of an indicated crate module folder. Paths are specified
 //! relative to the cargo manifest directory.
@@ -52,11 +47,6 @@ use std::fs;
 
 /// # List-Modules Procedural Macro
 ///
-/// **WARNING: This crate is domain-specific. The only thing that makes it so
-/// is that you cannot name one of the directory items you are trying to list
-/// "archetypes.rs" (a module folder named "archetypes" is fine). I will try
-/// to fix this ASAP.**
-///
 /// This macro creates a constant string slice list of all the module names
 /// which are children of an indicated crate module folder. Paths are specified
 /// relative to the cargo manifest directory.
@@ -97,9 +87,10 @@ use std::fs;
 #[proc_macro]
 pub fn here(__input: TokenStream) -> TokenStream {
     // Get the absolute path of the directory where the macro was called from
-    let __manifest_dir = env::var("CARGO_MANIFEST_DIR").expect("Failed to get Cargo manifest directory");
-    let mut __macro_call_path = fs::canonicalize(__manifest_dir)
-        .expect("Failed to canonicalize Cargo manifest directory");
+    let __manifest_dir =
+        env::var("CARGO_MANIFEST_DIR").expect("Failed to get Cargo manifest directory");
+    let mut __macro_call_path =
+        fs::canonicalize(__manifest_dir).expect("Failed to canonicalize Cargo manifest directory");
     __macro_call_path.push(__input.to_string().trim_matches('"'));
 
     // Collect the module names by iterating over the entries in the full base directory
@@ -108,12 +99,9 @@ pub fn here(__input: TokenStream) -> TokenStream {
         .filter_map(|entry| {
             if let Ok(entry) = entry {
                 if let Some(entry_name) = entry.file_name().to_str() {
-                    if entry_name.ends_with(".rs")
-                        && entry_name != "mod.rs"
-                        && entry_name != "archetypes.rs"
-                    {
+                    if entry_name.ends_with(".rs") && entry_name != "mod.rs" {
                         return Some(entry_name[..entry_name.len() - 3].to_owned());
-                    } else if entry_name != "mod.rs" && entry_name != "archetypes.rs" {
+                    } else if entry_name != "mod.rs" {
                         return Some(entry_name.to_owned());
                     }
                 }
