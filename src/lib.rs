@@ -1,6 +1,7 @@
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
+use quote::format_ident;
 use quote::quote;
 use std::env;
 use std::fs;
@@ -45,11 +46,11 @@ pub fn generate_module_list(__input: TokenStream) -> TokenStream {
         ]
     };
 
-    let _internal_module_array_length = __internal_module_names.len();
+    let __internal_array_type_definition = format_ident!("[&str; {}]", __internal_module_names.len());
 
     // Generate the static list of string slices with the custom list name
     let __internal_macro_output = quote! {
-        pub const MODULE_LIST: [&str; #_internal_module_array_length] = [#__internal_module_array];
+        pub const MODULE_LIST: #__internal_array_type_definition = [#__internal_module_array];
     };
 
     __internal_macro_output.into()
