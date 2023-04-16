@@ -49,9 +49,11 @@ pub fn generate_module_list(__input: TokenStream) -> TokenStream {
         ]
     };
 
+    // let __the_inside_typedef = __internal_module_names.len();
+
     // Generate the static list of string slices with the custom list name
     let __internal_macro_output: proc_macro2::TokenStream = quote! {
-        pub const MODULE_LIST: [&str; (__internal_module_names.len())] = [#__internal_module_array];
+        pub const MODULE_LIST: [&str; 1] = [#__internal_module_array];
     };
 
     __internal_macro_output.into()
