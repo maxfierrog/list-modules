@@ -8,7 +8,7 @@ use std::path::Path;
 use syn::{parse_macro_input, LitStr};
 
 #[proc_macro]
-pub fn modlist(__input: TokenStream) -> TokenStream {
+pub fn all(__input: TokenStream) -> TokenStream {
     // Parse the input path and list name from the TokenStream
     let __input = parse_macro_input!(__input as LitStr);
     let __input = __input.value();
