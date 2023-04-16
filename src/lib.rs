@@ -27,9 +27,9 @@ pub fn generate_module_list(input: TokenStream) -> TokenStream {
         .filter_map(|entry| {
             if let Ok(entry) = entry {
                 if let Some(entry_name) = entry.file_name().to_str() {
-                    if entry_name.ends_with(".rs") && entry_name != "mod.rs" {
+                    if entry_name.ends_with(".rs") && entry_name != "mod.rs" && entry_name != "archetypes.rs" {
                         return Some(entry_name[..entry_name.len() - 3].to_owned());
-                    } else {
+                    } else if entry_name != "mod.rs" && entry_name != "archetypes.rs" {
                         return Some(entry_name.to_owned());
                     }
                 }
