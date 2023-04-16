@@ -1,6 +1,6 @@
 [package]
 name = "list-mod"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 description = "A procedural macro for generating a list of string slices of the names of the modules inside a source code directory in the current project."
 license = "MIT OR Apache-2.0"

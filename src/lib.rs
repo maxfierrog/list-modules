@@ -46,7 +46,7 @@ pub fn generate_module_list(__input: TokenStream) -> TokenStream {
         ]
     };
 
-    let __internal_array_type_definition = format_ident!(r"[&str; {}]", __internal_module_names.len());
+    let __internal_array_type_definition = format_ident!(r#"[&str; {}]"#, __internal_module_names.len());
 
     // Generate the static list of string slices with the custom list name
     let __internal_macro_output = quote! {
