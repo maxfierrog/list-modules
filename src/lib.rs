@@ -8,7 +8,7 @@ use std::path::Path;
 use syn::{parse_macro_input, LitStr};
 
 #[proc_macro]
-pub fn generate_module_list(__input: TokenStream) -> TokenStream {
+pub fn modlist(__input: TokenStream) -> TokenStream {
     // Parse the input path and list name from the TokenStream
     let __input = parse_macro_input!(__input as LitStr);
     let __input = __input.value();
@@ -53,7 +53,7 @@ pub fn generate_module_list(__input: TokenStream) -> TokenStream {
 
     // Generate the static list of string slices with the custom list name
     let __internal_macro_output: proc_macro2::TokenStream = quote! {
-        pub const MODULE_LIST: [&str; #__the_inside_typedef] = #__internal_module_array;
+        pub const GAME_LIST: [&str; #__the_inside_typedef] = #__internal_module_array;
     };
 
     __internal_macro_output.into()
