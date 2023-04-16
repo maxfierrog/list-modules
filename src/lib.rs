@@ -1,29 +1,106 @@
+//! # List-Modules Procedural Macro
+//!
+//! **WARNING: This crate is domain-specific. The only thing that makes it so
+//! is that you cannot name one of the directory items you are trying to list
+//! "archetypes.rs" (a module folder named "archetypes" is fine). I will try
+//! to fix this ASAP.**
+//!
+//! This crate creates a constant string slice list of all the module names
+//! which are children of the crate of the module folder it was called from.
+//! Note that it will only have the desired function if it is called from the
+//! `mod.rs` file of a module structured in a folder (not a file).
+//!
+//! For example, calling this macro from `mod.rs` in the following file tree:
+//!
+//! ```none
+//! parent/
+//!     mod.rs
+//!     child_1.rs
+//!     child_2/
+//!         mod.rs
+//!         internal.rs
+//!         other_internal/
+//!             ...
+//!         ...
+//!     child_3.rs
+//!     child_4.rs
+//!     ...
+//!     child_N/
+//!         mod.rs
+//! ```
+//!
+//! ...will result in the following list expansion:
+//!
+//! ```rust
+//! pub const LIST: [&str; N] = [
+//!     "child_1",
+//!     "child_2",
+//!     "child_3",
+//!     ...
+//!     "child_n",
+//! ];
+//! ```
+//!
+//! Note that this is the only guaranteed behavior.
+
 extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use quote::quote;
 use std::env;
 use std::fs;
-use std::path::Path;
-use syn::{parse_macro_input, LitStr};
 
+/// # List-Modules Procedural Macro
+///
+/// **WARNING: This crate is domain-specific. The only thing that makes it so
+/// is that you cannot name one of the directory items you are trying to list
+/// "archetypes.rs" (a module folder named "archetypes" is fine). I will try
+/// to fix this ASAP.**
+///
+/// This crate creates a constant string slice list of all the module names
+/// which are children of the crate of the module folder it was called from.
+/// Note that it will only have the desired function if it is called from the
+/// `mod.rs` file of a module structured in a folder (not a file).
+///
+/// For example, calling this macro from `mod.rs` in the following file tree:
+///
+/// ```none
+/// parent/
+///     mod.rs
+///     child_1.rs
+///     child_2/
+///         mod.rs
+///         internal.rs
+///         other_internal/
+///             ...
+///         ...
+///     child_3.rs
+///     child_4.rs
+///     ...
+///     child_N/
+///         mod.rs
+/// ```
+///
+/// ...will result in the following list expansion:
+///
+/// ```rust
+/// pub const LIST: [&str; N] = [
+///     "child_1",
+///     "child_2",
+///     "child_3",
+///     ...
+///     "child_n",
+/// ];
+/// ```
+///
+/// Note that this is the only guaranteed behavior.
 #[proc_macro]
-pub fn all(__input: TokenStream) -> TokenStream {
-    // Parse the input path and list name from the TokenStream
-    let __input = parse_macro_input!(__input as LitStr);
-    let __input = __input.value();
-    let __internal_base_path = Path::new(&__input);
-
-    // Get the project directory
-    let __internal_project_dir =
-        env::var("CARGO_MANIFEST_DIR").expect("Failed to get project directory");
-    let __internal_project_path = Path::new(&__internal_project_dir);
-
-    // Construct the full base path by appending the input path to the project directory
-    let __internal_full_base_path = __internal_project_path.join(__internal_base_path);
+pub fn here(_: TokenStream) -> TokenStream {
+    // Get the absolute path of the directory where the macro was called from
+    let mut __macro_call_path = env::current_dir().expect("Failed to get current directory");
 
     // Collect the module names by iterating over the entries in the full base directory
-    let __internal_module_names: Vec<String> = fs::read_dir(__internal_full_base_path)
+    let __internal_module_names: Vec<String> = fs::read_dir(__macro_call_path)
         .expect("Failed to read directory")
         .filter_map(|entry| {
             if let Ok(entry) = entry {
@@ -49,11 +126,11 @@ pub fn all(__input: TokenStream) -> TokenStream {
         ]
     };
 
-    let __the_inside_typedef = __internal_module_names.len();
+    let __number_of_modules_in_array = __internal_module_names.len();
 
     // Generate the static list of string slices with the custom list name
     let __internal_macro_output: proc_macro2::TokenStream = quote! {
-        pub const GAME_LIST: [&str; #__the_inside_typedef] = #__internal_module_array;
+        pub const LIST: [&str; #__number_of_modules_in_array] = #__internal_module_array;
     };
 
     __internal_macro_output.into()
