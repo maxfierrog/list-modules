@@ -8,21 +8,21 @@ use std::path::Path;
 use syn::{parse_macro_input, LitStr};
 
 #[proc_macro]
-pub fn generate_module_list(input: TokenStream) -> TokenStream {
+pub fn generate_module_list(__input: TokenStream) -> TokenStream {
     // Parse the input path and list name from the TokenStream
-    let input = parse_macro_input!(input as LitStr);
-    let input = input.value();
-    let base_path = Path::new(&input);
+    let __input = parse_macro_input!(__input as LitStr);
+    let __input = __input.value();
+    let __internal_base_path = Path::new(&__input);
 
     // Get the project directory
-    let project_dir = env::var("CARGO_MANIFEST_DIR").expect("Failed to get project directory");
-    let project_path = Path::new(&project_dir);
+    let __internal_project_dir = env::var("CARGO_MANIFEST_DIR").expect("Failed to get project directory");
+    let __internal_project_path = Path::new(&__internal_project_dir);
 
     // Construct the full base path by appending the input path to the project directory
-    let full_base_path = project_path.join(base_path);
+    let __internal_full_base_path = __internal_project_path.join(__internal_base_path);
 
     // Collect the module names by iterating over the entries in the full base directory
-    let module_names: Vec<String> = fs::read_dir(full_base_path)
+    let __internal_module_names: Vec<String> = fs::read_dir(__internal_full_base_path)
         .expect("Failed to read directory")
         .filter_map(|entry| {
             if let Ok(entry) = entry {
@@ -39,16 +39,18 @@ pub fn generate_module_list(input: TokenStream) -> TokenStream {
         .collect();
 
     // Generate array of module names
-    let module_array = quote! {
+    let __internal_module_array = quote! {
         [
-            #(#module_names),*
+            #(#__internal_module_names),*
         ]
     };
 
+    let _internal_module_array_length = __internal_module_names.len();
+
     // Generate the static list of string slices with the custom list name
-    let output = quote! {
-        pub const MODULE_LIST: [&str; #module_array.len()] = [#module_array];
+    let __internal_macro_output = quote! {
+        pub const MODULE_LIST: [&str; #_internal_module_array_length] = [#__internal_module_array];
     };
 
-    output.into()
+    __internal_macro_output.into()
 }
